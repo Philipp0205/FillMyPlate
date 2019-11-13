@@ -2,4 +2,14 @@
     <string name="app_name">FillMyPlate</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="add_recipe">Add Recipe</string>
+
+    <string name="apple">&#127822;</string>
+
+
+    <string-array name="planets_array">
+        <item>g</item>
+        <item>kg</item>
+    </string-array>
+
 </resources>
