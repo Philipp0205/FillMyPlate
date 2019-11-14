@@ -116,7 +116,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginBottom="13dp"
-        android:onClick="addIngredient"
+        android:onClick="addIngredient2"
         android:text="Add"
         app:layout_constraintBottom_toTopOf="@+id/IngredientsRecyclerView"
         app:layout_constraintStart_toEndOf="@+id/UnitSpinner" />

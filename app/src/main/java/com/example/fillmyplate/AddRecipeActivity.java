@@ -21,13 +21,8 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.stream.Collectors;
 
 public class AddRecipeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     public final static String TAG = "AddRecipeActivity";
@@ -76,7 +71,7 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         mSpinner.setAdapter(adapter);
 
         // EMOJIS
-        //getEmoji2();
+        //addIngredient();
 
     }
 
@@ -85,13 +80,11 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         // Add a ingredient to the ingredient list
         mIngredientsList.add(mIngredientEditText.getText().toString());
         mAmountList.add(mAmountEditText.getText().toString() + mSpinner.getSelectedItem().toString());
-        getEmoji2(mIngredientEditText.getText().toString());
-        int  unicode = 0x1F60A;
+
+        //int  unicode = 0x1F60A;
         //mEmojiList.add(new String(Character.toChars(unicode)));
         // Notify the adapter
-        mRecyclerView.getAdapter(
-
-        ).notifyItemInserted(ingredientListSize);
+        mRecyclerView.getAdapter().notifyItemInserted(ingredientListSize);
 
 
         // Scroll to the bottom
@@ -110,10 +103,17 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
 
     }
 
-    public void getEmoji2(String search) {
-        String url = "https://emoji-api.com/emojis?search=" + search;
-        Log.d(TAG, "getEmoji: seachstring " + search);
-        String result;
+    public void addIngredient2(View view) {
+        final int ingredientListSize = mIngredientsList.size();
+
+        // Add a ingredient to the ingredient list
+        mIngredientsList.add(mIngredientEditText.getText().toString());
+        mAmountList.add(mAmountEditText.getText().toString() + mSpinner.getSelectedItem().toString());
+
+        //int  unicode = 0x1F60A;
+        //mEmojiList.add(new String(Character.toChars(unicode)));
+
+        String url = "https://emoji-api.com/emojis?search=" + mIngredientEditText.getText().toString();
 
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest request = new StringRequest(Request.Method.GET, url,
@@ -125,13 +125,19 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
                         // Parse response
                         try {
                             JSONArray jArray = new JSONArray(response);
-                            Log.d(TAG, "onResponse2: " + jArray.getJSONObject(1));
-
-                            Log.d(TAG, "onResponse3: " + jArray.getJSONObject(1).getString("codePoint"));
-                            //String unicode = new BufferedReader(new InputStreamReader(temp))
+                            Log.d(TAG, "onResponse2: " + jArray.getJSONObject(0));
+                            int codepoint = Integer.parseInt(jArray.getJSONObject(0).getString("codePoint"),16);
+                            char[] ch = Character.toChars(codepoint);
+                            Log.d(TAG, "onResponse: 6 " + String.valueOf(ch));
+                            Log.d(TAG, "onResponse3: " + jArray.getJSONObject(0).getString("codePoint"));
                             //mEmojiList.add(String.valueOf(ch));
-                            //mEmojiList.add(new String(Character.toChars(unicode)));
+                            mEmojiList.add(String.valueOf(ch));
+                            // Notify adapter
+                            mRecyclerView.getAdapter().notifyItemInserted(ingredientListSize);
                         } catch (JSONException e) {
+                            // If there is no emoji found just add an apple.
+                           // mEmojiList.add(null);🍎🍎
+                            mRecyclerView.getAdapter().notifyItemInserted(ingredientListSize);
                             e.printStackTrace();
                         }
                     }
@@ -144,9 +150,6 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         });
 
         queue.add(request);
-
-
-
     }
 
 

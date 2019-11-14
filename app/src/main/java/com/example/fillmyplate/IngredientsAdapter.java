@@ -31,7 +31,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     private final LinkedList<String> mIngredientsList;
     private final LinkedList<String> mIngredientAmountsList;
-    //private final LinkedList<String> mEmojiList;
+    private final LinkedList<String> mEmojiList;
     private final LayoutInflater mInflater;
 
 
@@ -85,10 +85,9 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
         mInflater = LayoutInflater.from(context);
         this.mIngredientsList = ingredientsList;
         this.mIngredientAmountsList = ingredientAmountsList;
-        //this.mEmojiList = emojiList;
+        this.mEmojiList = emojiList;
 
         this.context = context;
-
     }
 
     /**
@@ -133,12 +132,12 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
         String mCurrentIngredient = mIngredientsList.get(position);
         String mCurrentAmount = mIngredientAmountsList.get(position);
-        //String mCurrentEmoji = mEmojiList.get(position);
+        String mCurrentEmoji = mEmojiList.get(position);
 
         // Add the data to the view holder
         holder.ingredientItemView.setText(mCurrentIngredient);
         holder.amountItemTextView.setText(mCurrentAmount);
-        //holder.emojiItemView.setText(mCurrentEmoji);
+        holder.emojiItemView.setText(mCurrentEmoji);
 
        // holder.amountItemTextView.setText("");
     }
