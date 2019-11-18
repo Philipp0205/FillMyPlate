@@ -1,7 +1,6 @@
-package com.example.fillmyplate;
+package com.example.fillmyplate.activities;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,16 +8,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.fillmyplate.R;
 
 import java.util.LinkedList;
 
@@ -60,6 +50,9 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
             emojiItemView = itemView.findViewById(R.id.ingredientIcon);
             this.mAdapter = adapter;
             itemView.setOnClickListener(this);
+
+
+
         }
 
         @Override
@@ -150,44 +143,6 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     @Override
     public int getItemCount() {
         return mIngredientsList.size();
-    }
-
-    public void getEmoji(String search) {
-        String url = "https://emoji-api.com/emojis?search=" + search;
-        Log.d(TAG, "getEmoji: seachstring " + search);
-        String result;
-
-        RequestQueue queue = Volley.newRequestQueue(context);
-        StringRequest request = new StringRequest(Request.Method.GET, url,
-                new com.android.volley.Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d(TAG, "onResponse1: " + response);
-
-                        // Parse response
-                        try {
-                            JSONObject jObject = new JSONObject(response);
-                            JSONArray jsonArray = jObject.getJSONArray("");
-
-                            //emojiItemView.setText(jsonArray.getJSONObject(0).getString("character"));
-
-                            Log.d(TAG, "onResponse2: jObject " + jObject.getString("character"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "onErrorResponse: VolleyError");
-            }
-        });
-
-        queue.add(request);
-
-
-
     }
 
 

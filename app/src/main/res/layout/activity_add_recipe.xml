@@ -4,54 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddRecipeActivity">
-
-    <TextView
-        android:id="@+id/titleTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/add_recipe"
-        android:fontFamily="sans-serif-condensed-medium"
-        android:textSize="30dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/recipeNameTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="32dp"
-        android:text="TextView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
+    tools:context=".activities.AddRecipeActivity">
 
     <EditText
-        android:id="@+id/RecipeNameEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recipeNameTextView" />
-
-    <TextView
-        android:id="@+id/IngredientsTextView"
+        android:id="@+id/titleEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
-        android:text="TextView"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:hint="Title"
+        android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/RecipeNameEditText" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@android:color/transparent"/>
+
 
     <TextView
         android:id="@+id/amountTextView"
@@ -59,10 +27,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/IngredientsEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/ingredientsEditText" />
 
     <TextView
         android:id="@+id/UnitTextView"
@@ -70,22 +38,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="TextView"
         app:layout_constraintStart_toEndOf="@+id/amoundEditText"
-        app:layout_constraintTop_toBottomOf="@+id/IngredientsEditText" />
-
-    <EditText
-        android:id="@+id/IngredientsEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:ems="10"
-        android:hint="Ingredient name..."
-        android:inputType="textPersonName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/IngredientsTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/ingredientsEditText" />
 
     <EditText
         android:id="@+id/amoundEditText"
@@ -99,10 +55,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/amountTextView" />
 
+    <EditText
+        android:id="@+id/ingredientsEditText"
+        android:layout_width="198dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:hint="Ingredient"
+        android:inputType="textPersonName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleEditText" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/IngredientsRecyclerView"
-        android:layout_width="371dp"
-        android:layout_height="207dp"
+        android:layout_width="359dp"
+        android:layout_height="305dp"
         android:layout_marginStart="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="16dp"
@@ -129,4 +98,16 @@
         android:layout_marginLeft="16dp"
         app:layout_constraintStart_toEndOf="@+id/amoundEditText"
         app:layout_constraintTop_toBottomOf="@+id/UnitTextView" />
+
+    <Button
+        android:id="@+id/saveRecipeBtn"
+        android:layout_width="89dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="Save"
+        android:onClick="saveRecipe"
+        app:layout_constraintBottom_toTopOf="@+id/IngredientsRecyclerView"
+        app:layout_constraintStart_toEndOf="@+id/addIntredientBtn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

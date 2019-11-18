@@ -1,10 +1,15 @@
-package com.example.fillmyplate;
+package com.example.fillmyplate.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,28 +23,42 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.fillmyplate.R;
+import com.example.fillmyplate.db.RecipeRoomDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.LinkedList;
 
+import static android.content.Intent.EXTRA_TITLE;
+
 public class AddRecipeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+
     public final static String TAG = "AddRecipeActivity";
+
+    public static final String EXTRA_REPLY = "com.example.fillmyplate.REPLY";
+    private static final String EXTRA_AMOUNTS = "com.example.fillmyplate.AMOUNTS";
+    private static final String EXTRA_RECIPE_TITLE = "com.example.fillmyplate.RECIPE_TITLE";
+    private static final String EXTA_INGREDIENTS = "com.example.fillmyplate.INGREDIENTS";
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
+    private String mRecipeTitle;
     private final LinkedList<String> mIngredientsList = new LinkedList<>();
     private final LinkedList<String> mAmountList = new LinkedList<>();
     private final LinkedList<String> mEmojiList = new LinkedList<>();
 
     EditText mIngredientEditText;
     EditText mAmountEditText;
+    EditText mRecipeTitleEditText;
     Spinner mSpinner;
 
     String mUnit;
+
+    RecipeRoomDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +66,11 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         setContentView(R.layout.activity_add_recipe);
 
         //Buttons and Edit Text fields.
-        mIngredientEditText = findViewById(R.id.IngredientsEditText);
+        mIngredientEditText = findViewById(R.id.ingredientsEditText);
 
         mRecyclerView = findViewById(R.id.IngredientsRecyclerView);
         mAmountEditText = findViewById(R.id.amoundEditText);
+        mRecipeTitleEditText = findViewById(R.id.titleEditText);
 
         // RECYLCER VIEW
         // use this setting to improve performance if you know that changes
@@ -65,6 +85,9 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         mAdapter = new IngredientsAdapter(this, mIngredientsList, mAmountList, mEmojiList);
         mRecyclerView.setAdapter(mAdapter);
 
+        //TITLE
+        mRecipeTitle = mRecipeTitleEditText.getText().toString();
+
         // SPINNER
         mSpinner = findViewById(R.id.UnitSpinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.planets_array, android.R.layout.simple_spinner_dropdown_item);
@@ -73,22 +96,39 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         // EMOJIS
         //addIngredient();
 
-    }
+        // DIVIDER
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, 1);
+        mRecyclerView.addItemDecoration(dividerItemDecoration);
 
-    public void addIngredient(View view) {
-        int ingredientListSize = mIngredientsList.size();
-        // Add a ingredient to the ingredient list
-        mIngredientsList.add(mIngredientEditText.getText().toString());
-        mAmountList.add(mAmountEditText.getText().toString() + mSpinner.getSelectedItem().toString());
+        // SWIPE TO DISMISS
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-        //int  unicode = 0x1F60A;
-        //mEmojiList.add(new String(Character.toChars(unicode)));
-        // Notify the adapter
-        mRecyclerView.getAdapter().notifyItemInserted(ingredientListSize);
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                //Remove swiped item from list and notify the RecyclerView
+                //Log.d(TAG, "onSwiped: remove index" + mIngredientsList.get(swipeDir));
+               //mIngredientsList.remove(swipeDir);
+
+                Log.d(TAG, "onSwiped1: " + viewHolder.getAdapterPosition());
+
+                mIngredientsList.remove(viewHolder.getAdapterPosition());
+                mAmountList.remove(viewHolder.getAdapterPosition());
+                mEmojiList.remove(viewHolder.getAdapterPosition());
+
+               mRecyclerView.getAdapter().notifyItemRemoved(viewHolder.getAdapterPosition());
+                Log.d(TAG, "onSwiped: ");
 
 
-        // Scroll to the bottom
-        //mRecyclerView.smoothScrollToPosition(ingredientListSize);
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
     }
 
     // Not used @TODO remove
@@ -137,6 +177,9 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
                         } catch (JSONException e) {
                             // If there is no emoji found just add an apple.
                            // mEmojiList.add(null);🍎🍎
+                            int codepoint = Integer.parseInt("1F34E", 16);
+                            char[] ch = Character.toChars(codepoint);
+                            mEmojiList.add(String.valueOf(ch));
                             mRecyclerView.getAdapter().notifyItemInserted(ingredientListSize);
                             e.printStackTrace();
                         }
@@ -152,6 +195,28 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         queue.add(request);
     }
 
+    public void saveRecipe(View view) {
+        // Save data in DB
 
 
+
+        // Send data to MainActivity
+        Log.d(TAG, "saveRecipe: ");
+        Intent replyIntent = new Intent();
+        //Bundle extras = new Bundle();
+        //extras.putString(EXTRA_RECIPE_TITLE, mRecipeTitle);
+        //extras.putStringArray(EXTRA_AMOUNTS, (String[]) mAmountList.toArray());
+        //extras.putStringArray(EXTA_INGREDIENTS, (String[]) mIngredientsList.toArray());
+        //replyIntent.putExtra(EXTRA_REPLY,extras);
+        if(TextUtils.isEmpty(mRecipeTitleEditText.getText())) {
+            Log.d(TAG, "saveRecipe: Result canceled" );
+            setResult(RESULT_CANCELED, replyIntent);
+        } else {
+            Log.d(TAG, "saveRecipe: Result ok " + mRecipeTitleEditText.getText());
+            replyIntent.putExtra(EXTRA_REPLY, mRecipeTitleEditText.getText());
+            setResult(RESULT_OK, replyIntent);
+        }
+        finish();
+
+    }
 }

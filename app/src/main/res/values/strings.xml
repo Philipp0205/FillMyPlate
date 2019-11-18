@@ -5,6 +5,7 @@
     <string name="add_recipe">Add Recipe</string>
 
     <string name="apple">&#127822;</string>
+    <string name="spaghetti_bolognese">Spaghetti Bolognese</string>
 
 
     <string-array name="planets_array">
