@@ -1,16 +1,21 @@
-package com.example.fillmyplate.db;
+package com.example.fillmyplate.activities;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
+import com.example.fillmyplate.db.IngredientsDao;
+import com.example.fillmyplate.db.RecipeDao;
 import com.example.fillmyplate.entitys.Ingredient;
 import com.example.fillmyplate.entitys.Recipe;
 
 import java.util.List;
 
 public class RecipeRepository {
+
+    private static final String TAG = "RecipeRepository";
 
     private RecipeDao mRecipeDao;
     private LiveData<List<Recipe>> mAllRecipes;
@@ -29,6 +34,7 @@ public class RecipeRepository {
     }
 
     public void insert (Recipe recipe) {
+        Log.d(TAG, "insert: " + recipe.toString());
         new insertAsyncTask(mRecipeDao).execute(recipe);
     }
 

@@ -1,4 +1,4 @@
-package com.example.fillmyplate.db;
+package com.example.fillmyplate.activities;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -9,6 +9,8 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.example.fillmyplate.db.IngredientsDao;
+import com.example.fillmyplate.db.RecipeDao;
 import com.example.fillmyplate.entitys.Ingredient;
 import com.example.fillmyplate.entitys.Recipe;
 
@@ -38,51 +40,20 @@ public abstract class RecipeRoomDatabase extends RoomDatabase {
 
     }
 
-    /*
+
     private static RoomDatabase.Callback sRoomDatabaseCallback =
             new RoomDatabase.Callback() {
 
                 @Override
                 public void onOpen(@NonNull SupportSQLiteDatabase db) {
                     super.onOpen(db);
-                    new PopulateDbAsync(INSTANCE).execute();
                 }
             };
 
-    /**
-     * Populate the database in the background.
-     */
-
-    /*
-    private static class PopulateDbAsync extends AsyncTask<Void, Void, Void> {
-
-        private final RecipeDao mDao;
-        //String[] recipes = {"dolphin", "crocodile", "cobra"};
-
-        PopulateDbAsync(RecipeRoomDatabase db) {
-            mDao = db.recipeDao();
-        }
 
 
 
-        @Override
-        protected Void doInBackground(final Void... params) {
-            // Start the app with a clean database every time.
-            // Not needed if you only populate the database
-            // when it is first created
-            mDao.deleteAll();
 
-            for (int i = 0; i <= recipes.length - 1; i++) {
-                Recipe word = new Recipe(recipes[i]);
-                mDao.insert(word);
-            }
-            return null;
-
-        }
-
-    }
-
-     */
 
 
 }

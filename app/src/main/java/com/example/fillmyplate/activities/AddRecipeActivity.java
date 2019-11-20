@@ -2,6 +2,8 @@ package com.example.fillmyplate.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,14 +26,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fillmyplate.R;
-import com.example.fillmyplate.db.RecipeRoomDatabase;
+import com.example.fillmyplate.entitys.Recipe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.LinkedList;
-
-import static android.content.Intent.EXTRA_TITLE;
+import java.util.List;
 
 public class AddRecipeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -42,14 +43,16 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
     private static final String EXTRA_RECIPE_TITLE = "com.example.fillmyplate.RECIPE_TITLE";
     private static final String EXTA_INGREDIENTS = "com.example.fillmyplate.INGREDIENTS";
 
+
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
+
     private String mRecipeTitle;
-    private final LinkedList<String> mIngredientsList = new LinkedList<>();
-    private final LinkedList<String> mAmountList = new LinkedList<>();
-    private final LinkedList<String> mEmojiList = new LinkedList<>();
+    private final List<String> mIngredientsList = new LinkedList<>();
+    private final List<String> mAmountList = new LinkedList<>();
+    private final List<String> mEmojiList = new LinkedList<>();
 
     EditText mIngredientEditText;
     EditText mAmountEditText;
@@ -58,7 +61,7 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
 
     String mUnit;
 
-    RecipeRoomDatabase db;
+    RecipeViewModel mRecipeViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +87,20 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         // specify an adapter (see also next example)
         mAdapter = new IngredientsAdapter(this, mIngredientsList, mAmountList, mEmojiList);
         mRecyclerView.setAdapter(mAdapter);
+
+        // Get a new or existing ViewModel from the ViewModelProvider
+        mRecipeViewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+
+        // Add an observer on the LiveData returned by getAlphabetizedWords.
+        // The onChanged() method fires when the observed data changes and the activity is
+        // in the foreground.
+        mRecipeViewModel.getAllRecipes().observe(this, new Observer<List<Recipe>>() {
+            @Override
+            public void onChanged(List<Recipe> recipes) {
+                // Update the cached copy of the recipes in adapter
+            }
+        });
+
 
         //TITLE
         mRecipeTitle = mRecipeTitleEditText.getText().toString();
@@ -197,8 +214,8 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
 
     public void saveRecipe(View view) {
         // Save data in DB
-
-
+        Recipe recipe = new Recipe(mRecipeTitleEditText.getText().toString());
+        mRecipeViewModel.insert(recipe);
 
         // Send data to MainActivity
         Log.d(TAG, "saveRecipe: ");
@@ -208,12 +225,12 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         //extras.putStringArray(EXTRA_AMOUNTS, (String[]) mAmountList.toArray());
         //extras.putStringArray(EXTA_INGREDIENTS, (String[]) mIngredientsList.toArray());
         //replyIntent.putExtra(EXTRA_REPLY,extras);
-        if(TextUtils.isEmpty(mRecipeTitleEditText.getText())) {
+        if(TextUtils.isEmpty(mRecipeTitleEditText.getText().toString())) {
             Log.d(TAG, "saveRecipe: Result canceled" );
             setResult(RESULT_CANCELED, replyIntent);
         } else {
             Log.d(TAG, "saveRecipe: Result ok " + mRecipeTitleEditText.getText());
-            replyIntent.putExtra(EXTRA_REPLY, mRecipeTitleEditText.getText());
+            replyIntent.putExtra(EXTRA_REPLY, mRecipeTitleEditText.getText().toString());
             setResult(RESULT_OK, replyIntent);
         }
         finish();

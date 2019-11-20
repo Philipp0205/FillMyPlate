@@ -6,6 +6,7 @@
 
     <string name="apple">&#127822;</string>
     <string name="spaghetti_bolognese">Spaghetti Bolognese</string>
+    <string name="test_string">lol</string>
 
 
     <string-array name="planets_array">

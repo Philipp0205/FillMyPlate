@@ -1,21 +1,38 @@
 package com.example.fillmyplate.activities;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.example.fillmyplate.R;
-import com.example.fillmyplate.db.RecipeViewModel;
+import com.example.fillmyplate.entitys.Recipe;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.cardview.widget.CardView;
+import androidx.lifecycle.LiveData;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,14 +40,53 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int NEW_RECIPE_ACTIVITY_REQUEST_CODE = 1;
 
-    private RecipeViewModel mRecipeViewModel;
+    private RecyclerView mRecyclerView;
+    
+    private RecipeViewModel mRecipeViewmodel; 
 
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+
+    private final List<String> mTitleList = new LinkedList<>();
+
+    //NEU for adapter
+    private List<String> recipeDataList = new ArrayList<>();
+
+    RecipeRoomDatabase db;
+
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        // RECYCLER VIEW STUFF
+        mRecyclerView = findViewById(R.id.recycler_view1);
+
+        mRecyclerView.setHasFixedSize(true);
+
+        // user linerar layout manager
+        // @TODO change later
+        layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);
+
+        // specify an adapter
+
+        mAdapter = new RecipeAdapter(this, mTitleList);
+        mRecyclerView.setAdapter(mAdapter);
+
+        // DB
+        db = Room.databaseBuilder(getApplicationContext(), RecipeRoomDatabase.class, "appdb").build();
+
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -41,9 +97,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Get a new or existing ViewModel from the ViewModelProvider.
-        mRecipeViewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+
     }
+
+    private void recipeDataPrepare2() {
+        Log.d(TAG, "recipeDataPrepare2: ");
+        String title = "Recipe 1";
+        mTitleList.add(title);
+        String title2 = "Recipe 2";
+        mTitleList.add(title2);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,13 +133,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: ");
 
 //
         if (requestCode == NEW_RECIPE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            Log.d(TAG, "onActivityResult: ");
-           //Bundle extras = data.getExtras();
-            // String title = extras.getString("EXTRA_RECIPE_TITLE");
-            // Log.d(TAG, "onActivityResult: " + title);
+            Log.d(TAG, "onActivityResult: " + data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
+            mTitleList.add(data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
+
+
+
+
+
+
 
         } else {
             Toast.makeText(
@@ -83,5 +152,12 @@ public class MainActivity extends AppCompatActivity {
                     "saved",
                     Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void loadDataFromDb() {
+
+        LiveData<List<Recipe>> allRecipes = mRecipeViewmodel.getAllRecipes();
+
+
     }
 }

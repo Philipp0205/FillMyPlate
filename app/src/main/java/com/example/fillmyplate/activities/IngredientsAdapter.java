@@ -9,8 +9,10 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fillmyplate.R;
+import com.example.fillmyplate.entitys.Ingredient;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Implements an Adapter for a RecyclerView.
@@ -19,10 +21,10 @@ import java.util.LinkedList;
 public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.IngredientsViewHolder> {
     private static final String TAG = "IngredientsAdapter";
 
-    private final LinkedList<String> mIngredientsList;
-    private final LinkedList<String> mIngredientAmountsList;
-    private final LinkedList<String> mEmojiList;
-    private final LayoutInflater mInflater;
+    private List<String> mIngredientsList;
+    private List<String> mIngredientAmountsList;
+    private List<String> mEmojiList;
+    private LayoutInflater mInflater;
 
 
     private Context context;
@@ -73,8 +75,8 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     }
 
     // Constructor
-    public IngredientsAdapter(Context context, LinkedList<String> ingredientsList, LinkedList<String> ingredientAmountsList,
-                              LinkedList<String> emojiList) {
+    public IngredientsAdapter(Context context, List<String> ingredientsList, List<String> ingredientAmountsList,
+                              List<String> emojiList) {
         mInflater = LayoutInflater.from(context);
         this.mIngredientsList = ingredientsList;
         this.mIngredientAmountsList = ingredientAmountsList;
@@ -143,6 +145,13 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     @Override
     public int getItemCount() {
         return mIngredientsList.size();
+    }
+
+    // @TODO Wird wahrscheinlich nicht gebraucht
+    void setIngredients(LinkedList<String> ingredients) {
+        mIngredientsList = ingredients;
+        notifyDataSetChanged();
+
     }
 
 
