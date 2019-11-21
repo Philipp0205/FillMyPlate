@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -44,15 +46,16 @@ public class MainActivity extends AppCompatActivity {
     
     private RecipeViewModel mRecipeViewmodel; 
 
-    private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
 
-    private final List<String> mTitleList = new LinkedList<>();
+    //private final List<String> mTitleList = new LinkedList<>();
 
     //NEU for adapter
     private List<String> recipeDataList = new ArrayList<>();
 
     RecipeRoomDatabase db;
+
+
 
 
 
@@ -76,8 +79,25 @@ public class MainActivity extends AppCompatActivity {
 
         // specify an adapter
 
-        mAdapter = new RecipeAdapter(this, mTitleList);
-        mRecyclerView.setAdapter(mAdapter);
+        final RecipeAdapter recipeAdapter = new RecipeAdapter(this);
+        //mAdapter = new RecipeAdapter(this, mTitleList);
+        mRecyclerView.setAdapter(recipeAdapter);
+
+        mRecipeViewmodel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+        mRecipeViewmodel.getAllRecipes().observe(this, new Observer<List<Recipe>>() {
+            @Override
+            public void onChanged(List<Recipe> recipes) {
+                Log.d(TAG, "onChanged: " + recipes.toString());
+                for (Recipe rec : recipes) {
+                    Log.d(TAG, "onChanged: " + rec.getTitle());
+                }
+                recipeAdapter.setRecipes(recipes);
+            }
+        });
+
+        
+
+
 
         // DB
         db = Room.databaseBuilder(getApplicationContext(), RecipeRoomDatabase.class, "appdb").build();
@@ -99,15 +119,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-    private void recipeDataPrepare2() {
-        Log.d(TAG, "recipeDataPrepare2: ");
-        String title = "Recipe 1";
-        mTitleList.add(title);
-        String title2 = "Recipe 2";
-        mTitleList.add(title2);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -138,13 +149,9 @@ public class MainActivity extends AppCompatActivity {
 //
         if (requestCode == NEW_RECIPE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             Log.d(TAG, "onActivityResult: " + data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
-            mTitleList.add(data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
-
-
-
-
-
-
+           // mTitleList.add(data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
+            Recipe rec = new Recipe(data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
+            mRecipeViewmodel.insert(rec);
 
         } else {
             Toast.makeText(
@@ -156,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadDataFromDb() {
 
-        LiveData<List<Recipe>> allRecipes = mRecipeViewmodel.getAllRecipes();
 
 
     }
