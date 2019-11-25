@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     private List<String> mIngredientsList;
     private List<String> mIngredientAmountsList;
+    private List<String> mUnitList;
     private List<String> mEmojiList;
     private LayoutInflater mInflater;
 
@@ -34,6 +36,7 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
         public final TextView ingredientItemView;
         public final TextView amountItemTextView;
+        public final TextView unitTextView;
         public final TextView emojiItemView;
         final IngredientsAdapter mAdapter;
 
@@ -49,10 +52,10 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
             super(itemView);
             ingredientItemView = itemView.findViewById(R.id.ingredient);
             amountItemTextView = itemView.findViewById(R.id.amountItemTextView);
+            unitTextView = itemView.findViewById(R.id.UnitItemTextView);
             emojiItemView = itemView.findViewById(R.id.ingredientIcon);
             this.mAdapter = adapter;
             itemView.setOnClickListener(this);
-
 
 
         }
@@ -75,16 +78,17 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
     }
 
     // Constructor
-    public IngredientsAdapter(Context context, List<String> ingredientsList, List<String> ingredientAmountsList,
+    public IngredientsAdapter(Context context, List<String> ingredientsList, List<String> ingredientAmountsList, List<String> unitList,
                               List<String> emojiList) {
         mInflater = LayoutInflater.from(context);
         this.mIngredientsList = ingredientsList;
+        this.mUnitList = unitList;
         this.mIngredientAmountsList = ingredientAmountsList;
+
         this.mEmojiList = emojiList;
 
         this.context = context;
     }
-
     /**
      * Called when RecyclerView needs a new ViewHolder of the given type to
      * represent an item.
@@ -127,17 +131,20 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
         String mCurrentIngredient = mIngredientsList.get(position);
         String mCurrentAmount = mIngredientAmountsList.get(position);
+        String mCurrentUnit = mUnitList.get(position);
         String mCurrentEmoji = mEmojiList.get(position);
 
         // Add the data to the view holder
         holder.ingredientItemView.setText(mCurrentIngredient);
         holder.amountItemTextView.setText(mCurrentAmount);
+        holder.unitTextView.setText(mCurrentUnit);
         holder.emojiItemView.setText(mCurrentEmoji);
 
        // holder.amountItemTextView.setText("");
     }
 
     /**
+     * holde
      * Returns the total number of items in the data set held by the adapter.
      *
      * @return The total number of items in this adapter.

@@ -31,4 +31,14 @@ public class RecipeViewModel extends AndroidViewModel {
         Log.d(TAG, "insert: " + recipe.toString());
         mRepository.insert(recipe);
     }
+
+
+    public LiveData<Recipe> findById(int id) {
+        Log.d(TAG, "findById: " + id);
+
+        return   mRepository.findRecipeById(id);
+
+
+    }
+
 }

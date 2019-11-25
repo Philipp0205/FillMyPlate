@@ -13,7 +13,7 @@ import com.example.fillmyplate.entitys.Recipe;
 
 import java.util.List;
 
-public class RecipeRepository {
+public class    RecipeRepository {
 
     private static final String TAG = "RecipeRepository";
 
@@ -33,8 +33,13 @@ public class RecipeRepository {
         return mAllRecipes;
     }
 
+    LiveData<Recipe> findRecipeById(int id) {
+        Log.d(TAG, "findRecipeById: " + id);
+
+        return mRecipeDao.findRecipeById(id);
+    }
+
     public void insert (Recipe recipe) {
-        Log.d(TAG, "insert: " + recipe.toString());
         new insertAsyncTask(mRecipeDao).execute(recipe);
     }
 

@@ -19,8 +19,14 @@ public interface RecipeDao {
     @Query("DELETE FROM recipe_table")
     void deleteAll();
 
-    @Query("SELECT * from recipe_table ORDER BY title ASC")
+    @Query("SELECT * FROM recipe_table ORDER BY title ASC")
     LiveData<List<Recipe>> getAllRecipes();
+
+    @Query("SELECT * FROM recipe_table WHERE uid=:uid")
+    LiveData<Recipe> findRecipeById(int uid);
+
+    @Query("SELECT * FROM recipe_table WHERE uid = 1")
+    Recipe findRecipeById2();
 
 
 

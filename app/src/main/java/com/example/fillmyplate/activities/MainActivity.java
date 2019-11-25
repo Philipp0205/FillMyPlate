@@ -1,8 +1,7 @@
 package com.example.fillmyplate.activities;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -13,30 +12,25 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
-import androidx.room.RoomDatabase;
 
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RecipeAdapter.AdapterListener  {
 
     public static final String TAG = "MainAcitivity";
 
@@ -53,12 +47,7 @@ public class MainActivity extends AppCompatActivity {
     //NEU for adapter
     private List<String> recipeDataList = new ArrayList<>();
 
-    RecipeRoomDatabase db;
-
-
-
-
-
+    static RecipeRoomDatabase db;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -66,20 +55,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         // RECYCLER VIEW STUFF
         mRecyclerView = findViewById(R.id.recycler_view1);
 
         mRecyclerView.setHasFixedSize(true);
 
         // user linerar layout manager
-        // @TODO change later
         layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
 
         // specify an adapter
 
         final RecipeAdapter recipeAdapter = new RecipeAdapter(this);
+        recipeAdapter.setAdapterListener(MainActivity.this);
         //mAdapter = new RecipeAdapter(this, mTitleList);
         mRecyclerView.setAdapter(recipeAdapter);
 
@@ -90,11 +78,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onChanged: " + recipes.toString());
                 for (Recipe rec : recipes) {
                     Log.d(TAG, "onChanged: " + rec.getTitle());
+                    Log.d(TAG, "onChanged: recipe id " + rec.getUid());
                 }
                 recipeAdapter.setRecipes(recipes);
             }
         });
-
         
 
 
@@ -150,8 +138,8 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == NEW_RECIPE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             Log.d(TAG, "onActivityResult: " + data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
            // mTitleList.add(data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
-            Recipe rec = new Recipe(data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
-            mRecipeViewmodel.insert(rec);
+            //Recipe rec = new Recipe(data.getStringExtra(AddRecipeActivity.EXTRA_REPLY));
+            //mRecipeViewmodel.insert(rec);
 
         } else {
             Toast.makeText(
@@ -161,9 +149,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadDataFromDb() {
+    @Override
+    public void onClick(int id) {
+        Log.d(TAG, "onClick: Id " + id);
+        id = 1;
+
+        mRecipeViewmodel.findById(id).observe(this, new Observer<Recipe>() {
+            @Override
+            public void onChanged(Recipe recipe) {
+                Log.d(TAG, "onChanged: " + recipe.getTitle());
+            }
+        });
 
 
+
+
+
+
+
+
+
+
+        //Log.d(TAG, "onClick: recipe " + recipe.getValue().toString());
+
+
+
+        //Log.d(TAG, "onClick: " +recipe.getValue().get(0).getTitle());
+
+
+
+
+    }
+
+    @Override
+    public void onClick(ViewModel object) {
 
     }
 }

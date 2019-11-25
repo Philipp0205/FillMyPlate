@@ -22,16 +22,8 @@ public class Recipe {
     private String title;
     //private LinkedList<String> ingredients;
 
-    /*
-    @TypeConverters(Converters.class)
-    @ColumnInfo(name = "ingredients")
-    private List<String> ingredients;
-
-
-     */
     public Recipe(@NonNull String title) {
         this.title = title;
-        //this.ingredients = ingredients;
     }
 
     public String getTitle() {
@@ -49,18 +41,4 @@ public class Recipe {
     public void setUid(int uid) {
         this.uid = uid;
     }
-
-    /*
-    public List<String> getIngredients() {
-        return ingredients;
-    }
-
-    public void setIngredients(List<String> ingredients) {
-        this.ingredients = ingredients;
-    }
-
-     */
-
-
-
 }

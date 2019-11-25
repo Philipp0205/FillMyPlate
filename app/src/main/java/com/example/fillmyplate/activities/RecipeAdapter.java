@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fillmyplate.R;
@@ -28,7 +29,7 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>
     private LayoutInflater mInflater;
 
 
-    private Context context;
+    private Context mContext;
 
     private static int backGroundIndex = 0;
 
@@ -40,13 +41,11 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>
         ImageView imageView;
 
 
-
         public RecipeViewHolder(View itemView) {
             super(itemView);
 
             recipeTitleItemView = itemView.findViewById(R.id.name);
 
-            itemView.setOnClickListener(this);
             imageView = itemView.findViewById(R.id.card_image_view);
 
             Log.d(TAG, "RecipeViewHolder: index " + backGroundIndex);
@@ -61,6 +60,7 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>
                 imageView.setImageResource(R.drawable.background_blue);
                 backGroundIndex = 0;
             }
+            itemView.setOnClickListener(this);
 
 
         }
@@ -68,7 +68,10 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>
         @Override
         public void onClick(View v) {
 
-            Log.d(TAG, "onClick: lol");
+            int position = getAdapterPosition();
+            //mRecipes.get(position).getUid();
+            Log.d(TAG, "onClick: Position " + position);
+            adapterListener.onClick(position);
 
 
         }
@@ -76,7 +79,7 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>
 
     public RecipeAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
-        this.context = context;
+        this.mContext = context;
     }
 
     @NonNull
@@ -106,10 +109,31 @@ class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>
         return mRecipes.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public void setRecipes(List<Recipe> recipes) {
         this.mRecipes = recipes;
         Log.d(TAG, "setRecipes:  notifydataChanged" );
         notifyDataSetChanged();
+    }
+
+    public interface AdapterListener {
+        void onClick(int id);
+        void onClick(ViewModel object);
+    }
+
+    private AdapterListener adapterListener;
+    public void setAdapterListener(AdapterListener mCallback) {
+        this.adapterListener = mCallback;
+
     }
 
 

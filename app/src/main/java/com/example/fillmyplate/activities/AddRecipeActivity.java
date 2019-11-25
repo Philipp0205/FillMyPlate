@@ -26,6 +26,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.fillmyplate.R;
+import com.example.fillmyplate.entitys.Ingredient;
 import com.example.fillmyplate.entitys.Recipe;
 
 import org.json.JSONArray;
@@ -52,6 +53,7 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
     private String mRecipeTitle;
     private final List<String> mIngredientsList = new LinkedList<>();
     private final List<String> mAmountList = new LinkedList<>();
+    private final List<String> mUnitList = new LinkedList<>();
     private final List<String> mEmojiList = new LinkedList<>();
 
     EditText mIngredientEditText;
@@ -62,6 +64,7 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
     String mUnit;
 
     RecipeViewModel mRecipeViewModel;
+    IngredientViewModel mIngredientsViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +88,12 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         mRecyclerView.setLayoutManager(layoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new IngredientsAdapter(this, mIngredientsList, mAmountList, mEmojiList);
+        mAdapter = new IngredientsAdapter(this, mIngredientsList, mAmountList, mUnitList, mEmojiList);
         mRecyclerView.setAdapter(mAdapter);
 
         // Get a new or existing ViewModel from the ViewModelProvider
         mRecipeViewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+        mIngredientsViewModel = ViewModelProviders.of(this).get(IngredientViewModel.class);
 
         // Add an observer on the LiveData returned by getAlphabetizedWords.
         // The onChanged() method fires when the observed data changes and the activity is
@@ -134,6 +138,7 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
 
                 mIngredientsList.remove(viewHolder.getAdapterPosition());
                 mAmountList.remove(viewHolder.getAdapterPosition());
+                mUnitList.remove(viewHolder.getAdapterPosition());
                 mEmojiList.remove(viewHolder.getAdapterPosition());
 
                mRecyclerView.getAdapter().notifyItemRemoved(viewHolder.getAdapterPosition());
@@ -165,7 +170,8 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
 
         // Add a ingredient to the ingredient list
         mIngredientsList.add(mIngredientEditText.getText().toString());
-        mAmountList.add(mAmountEditText.getText().toString() + mSpinner.getSelectedItem().toString());
+        mAmountList.add(mAmountEditText.getText().toString());
+        mUnitList.add(mSpinner.getSelectedItem().toString());
 
         //int  unicode = 0x1F60A;
         //mEmojiList.add(new String(Character.toChars(unicode)));
@@ -213,9 +219,30 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
     }
 
     public void saveRecipe(View view) {
+
+
         // Save data in DB
         Recipe recipe = new Recipe(mRecipeTitleEditText.getText().toString());
         mRecipeViewModel.insert(recipe);
+
+        mRecipeViewModel.getAllRecipes().observe(this, new Observer<List<Recipe>>() {
+            @Override
+            public void onChanged(List<Recipe> recipes) {
+                Log.d(TAG, "onChanged: recipes " + recipes.toString());
+
+                int uid = recipes.get(0).getUid();
+                Log.d(TAG, "onChanged: current uid is " + uid);
+
+                for (String ing : mIngredientsList) {
+                    Ingredient ingredient = new Ingredient(mIngredientsList.get(uid), mAmountList.get(uid), mUnitList.get(uid), uid);
+                    Log.d(TAG, "saveRecipe ingredients: " + mIngredientsList.get(uid) + " " + mAmountList.get(uid) + " " + mUnitList.get(uid) + " " + uid);
+                    mIngredientsViewModel.insert(ingredient);
+                }
+
+
+            }
+        });
+
 
         // Send data to MainActivity
         Log.d(TAG, "saveRecipe: ");
