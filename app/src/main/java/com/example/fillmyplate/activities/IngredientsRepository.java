@@ -32,7 +32,7 @@ public class IngredientsRepository {
     }
 
     public void insert (Ingredient ingredient) {
-        Log.d(TAG, "insert: " + ingredient.toString());
+        Log.d(TAG, "insertRecipe: " + ingredient.toString());
         new insertAsyncTask(mIngredientDao).execute(ingredient);
     }
 

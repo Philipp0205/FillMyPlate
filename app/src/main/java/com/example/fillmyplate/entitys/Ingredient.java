@@ -6,21 +6,18 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "ingredient_table", foreignKeys =
-@ForeignKey(entity = Recipe.class, parentColumns = "uid", childColumns = "recipeId"))
+@Entity(tableName = "ingredient_table")
 public class Ingredient {
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     private int uid;
-    @ColumnInfo(name = "recipeId", index = true)
     public int recipeId;
-    @ColumnInfo(name = "title")
     private String title;
     @ColumnInfo(name = "amount")
     private String amount;
     @ColumnInfo(name = "unit")
     private String unit;
 
-    public Ingredient(@NonNull String title, String amount, String unit, int recipeId) {
+    public Ingredient(@NonNull int recipeId, String title, String amount, String unit) {
         this.title = title;
         this.amount = amount;
         this.unit = unit;
@@ -58,4 +55,12 @@ public class Ingredient {
     public void setUid(int uid) {
         this.uid = uid;
     }
+
+    public int getRecipeId() {return recipeId;}
 }
+
+
+
+
+
+

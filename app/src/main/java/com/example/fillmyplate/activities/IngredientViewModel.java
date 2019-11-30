@@ -29,7 +29,7 @@ public class IngredientViewModel extends AndroidViewModel {
     LiveData<List<Ingredient>> getAllIngredients() {return mAllIngredients;}
 
     public void insert (Ingredient ingredient) {
-        Log.d(TAG, "insert: " + ingredient.toString());
+        Log.d(TAG, "insertRecipe: " + ingredient.toString());
         mRepository.insert(ingredient);
     }
 

@@ -2,6 +2,7 @@ package com.example.fillmyplate.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -32,10 +34,11 @@ import com.example.fillmyplate.entitys.Recipe;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class AddRecipeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class AddRecipeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, AsyncResponse {
 
     public final static String TAG = "AddRecipeActivity";
 
@@ -43,6 +46,8 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
     private static final String EXTRA_AMOUNTS = "com.example.fillmyplate.AMOUNTS";
     private static final String EXTRA_RECIPE_TITLE = "com.example.fillmyplate.RECIPE_TITLE";
     private static final String EXTA_INGREDIENTS = "com.example.fillmyplate.INGREDIENTS";
+
+    private boolean isNewRecipe = true;
 
 
     private RecyclerView mRecyclerView;
@@ -132,7 +137,7 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 //Remove swiped item from list and notify the RecyclerView
                 //Log.d(TAG, "onSwiped: remove index" + mIngredientsList.get(swipeDir));
-               //mIngredientsList.remove(swipeDir);
+                //mIngredientsList.remove(swipeDir);
 
                 Log.d(TAG, "onSwiped1: " + viewHolder.getAdapterPosition());
 
@@ -141,7 +146,7 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
                 mUnitList.remove(viewHolder.getAdapterPosition());
                 mEmojiList.remove(viewHolder.getAdapterPosition());
 
-               mRecyclerView.getAdapter().notifyItemRemoved(viewHolder.getAdapterPosition());
+                mRecyclerView.getAdapter().notifyItemRemoved(viewHolder.getAdapterPosition());
                 Log.d(TAG, "onSwiped: ");
 
 
@@ -151,7 +156,30 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
+        // Data from MainActivity
+        Intent intent = getIntent();
+        String intentTitle = intent.getStringExtra(MainActivity.EXTRA_RECIPETITLE);
+        mRecipeTitleEditText.setText(intentTitle);
+        int recipeId = intent.getIntExtra(MainActivity.EXTRA_UID, 0);
+        mRecyclerView.setHasFixedSize(true);
+
+        mRecipeViewModel.getIngredientsWithRecipeId(recipeId).observe(this, new Observer<List<Ingredient>>() {
+            @Override
+            public void onChanged(List<Ingredient> ingredients) {
+                Log.d(TAG, "onChanged: " + ingredients);
+                final int ingredientListSize = mIngredientsList.size();
+
+                for (Ingredient ingredient : ingredients) {
+                    mIngredientsList.add(ingredient.getTitle());
+                    mAmountList.add(ingredient.getAmount());
+                    mUnitList.add(ingredient.getUnit());
+
+                    addEmoji(ingredient.getTitle(), ingredientListSize);
+                }
+            }
+        });
     }
+
 
     // Not used @TODO remove
     @Override
@@ -172,38 +200,39 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
         mIngredientsList.add(mIngredientEditText.getText().toString());
         mAmountList.add(mAmountEditText.getText().toString());
         mUnitList.add(mSpinner.getSelectedItem().toString());
+        addEmoji(mIngredientEditText.getText().toString(), ingredientListSize);
 
+
+    }
+
+    public void addEmoji(String emoji, int ingredientListSize) {
+        final int size = ingredientListSize;
         //int  unicode = 0x1F60A;
         //mEmojiList.add(new String(Character.toChars(unicode)));
 
-        String url = "https://emoji-api.com/emojis?search=" + mIngredientEditText.getText().toString();
+        String url = "https://emoji-api.com/emojis?search=" + emoji;
+
 
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest request = new StringRequest(Request.Method.GET, url,
                 new com.android.volley.Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d(TAG, "onResponse1: " + response);
-
                         // Parse response
                         try {
                             JSONArray jArray = new JSONArray(response);
-                            Log.d(TAG, "onResponse2: " + jArray.getJSONObject(0));
-                            int codepoint = Integer.parseInt(jArray.getJSONObject(0).getString("codePoint"),16);
+                            int codepoint = Integer.parseInt(jArray.getJSONObject(0).getString("codePoint"), 16);
                             char[] ch = Character.toChars(codepoint);
-                            Log.d(TAG, "onResponse: 6 " + String.valueOf(ch));
-                            Log.d(TAG, "onResponse3: " + jArray.getJSONObject(0).getString("codePoint"));
-                            //mEmojiList.add(String.valueOf(ch));
                             mEmojiList.add(String.valueOf(ch));
                             // Notify adapter
-                            mRecyclerView.getAdapter().notifyItemInserted(ingredientListSize);
+                            mRecyclerView.getAdapter().notifyItemInserted(size);
                         } catch (JSONException e) {
                             // If there is no emoji found just add an apple.
-                           // mEmojiList.add(null);🍎🍎
+                            // mEmojiList.add(null);🍎🍎
                             int codepoint = Integer.parseInt("1F34E", 16);
                             char[] ch = Character.toChars(codepoint);
                             mEmojiList.add(String.valueOf(ch));
-                            mRecyclerView.getAdapter().notifyItemInserted(ingredientListSize);
+                            mRecyclerView.getAdapter().notifyItemInserted(size);
                             e.printStackTrace();
                         }
                     }
@@ -220,47 +249,47 @@ public class AddRecipeActivity extends AppCompatActivity implements AdapterView.
 
     public void saveRecipe(View view) {
 
-
         // Save data in DB
-        Recipe recipe = new Recipe(mRecipeTitleEditText.getText().toString());
-        mRecipeViewModel.insert(recipe);
-
-        mRecipeViewModel.getAllRecipes().observe(this, new Observer<List<Recipe>>() {
-            @Override
-            public void onChanged(List<Recipe> recipes) {
-                Log.d(TAG, "onChanged: recipes " + recipes.toString());
-
-                int uid = recipes.get(0).getUid();
-                Log.d(TAG, "onChanged: current uid is " + uid);
-
-                for (String ing : mIngredientsList) {
-                    Ingredient ingredient = new Ingredient(mIngredientsList.get(uid), mAmountList.get(uid), mUnitList.get(uid), uid);
-                    Log.d(TAG, "saveRecipe ingredients: " + mIngredientsList.get(uid) + " " + mAmountList.get(uid) + " " + mUnitList.get(uid) + " " + uid);
-                    mIngredientsViewModel.insert(ingredient);
-                }
-
-
-            }
-        });
-
-
-        // Send data to MainActivity
-        Log.d(TAG, "saveRecipe: ");
-        Intent replyIntent = new Intent();
-        //Bundle extras = new Bundle();
-        //extras.putString(EXTRA_RECIPE_TITLE, mRecipeTitle);
-        //extras.putStringArray(EXTRA_AMOUNTS, (String[]) mAmountList.toArray());
-        //extras.putStringArray(EXTA_INGREDIENTS, (String[]) mIngredientsList.toArray());
-        //replyIntent.putExtra(EXTRA_REPLY,extras);
-        if(TextUtils.isEmpty(mRecipeTitleEditText.getText().toString())) {
-            Log.d(TAG, "saveRecipe: Result canceled" );
-            setResult(RESULT_CANCELED, replyIntent);
-        } else {
-            Log.d(TAG, "saveRecipe: Result ok " + mRecipeTitleEditText.getText());
-            replyIntent.putExtra(EXTRA_REPLY, mRecipeTitleEditText.getText().toString());
-            setResult(RESULT_OK, replyIntent);
+        List<Ingredient> ingredientList = new ArrayList<>();
+        // @TODO make sure that an empty  ingredientList is not allowed or find other workaround,
+        for (int i = 0; i < mIngredientsList.size(); i++) {
+            ingredientList.add(new Ingredient(1, mIngredientsList.get(i), mAmountList.get(i), mUnitList.get(i)));
         }
-        finish();
 
+        if (isNewRecipe) {
+            Recipe recipe = new Recipe(1, mRecipeTitleEditText.getText().toString(), (ingredientList));
+            mRecipeViewModel.insertRecipeWithIngredients(recipe);
+            // Send data to MainActivity
+            Intent replyIntent = new Intent();
+
+            if (TextUtils.isEmpty(mRecipeTitleEditText.getText().toString())) {
+                Log.d(TAG, "saveRecipe: Result canceled");
+                setResult(RESULT_CANCELED, replyIntent);
+            } else {
+                Log.d(TAG, "saveRecipe: Result ok " + mRecipeTitleEditText.getText());
+                replyIntent.putExtra(EXTRA_REPLY, mRecipeTitleEditText.getText().toString());
+                setResult(RESULT_OK, replyIntent);
+                finish();
+            }
+
+        } else {
+            Recipe recipe = new Recipe(1, mRecipeTitleEditText.getText().toString(), (ingredientList));
+            mRecipeViewModel.update(recipe);
+
+            Intent replyIntent = new Intent(this, MainActivity.class);
+            startActivity(replyIntent);
+            finish();
+        }
+
+
+
+
+
+
+    }
+
+    @Override
+    public void processFinish(Recipe output) {
+        Log.d(TAG, "processFinish: " + output);
     }
 }

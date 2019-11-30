@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.example.fillmyplate.entitys.Ingredient;
 import com.example.fillmyplate.entitys.Recipe;
 
 import java.util.List;
@@ -28,17 +29,31 @@ public class RecipeViewModel extends AndroidViewModel {
     LiveData<List<Recipe>> getAllRecipes() {return mAllRecipes;}
 
     public void insert (Recipe recipe) {
-        Log.d(TAG, "insert: " + recipe.toString());
+        Log.d(TAG, "insertRecipe: " + recipe.toString());
         mRepository.insert(recipe);
     }
 
+    public void insertRecipeWithIngredients (Recipe recipe) {
+        mRepository.insertRecipeWithIngredients(recipe);
+    }
 
-    public LiveData<Recipe> findById(int id) {
+    public void update (Recipe... recipes) {
+        mRepository.update(recipes);
+    }
+
+
+    public LiveData<Recipe> getrecipeById(int id) {
         Log.d(TAG, "findById: " + id);
 
-        return   mRepository.findRecipeById(id);
+        return   mRepository.getRecipeById(id);
+    }
 
+    public LiveData<List<Ingredient>> getIngredientsWithRecipeId(int id) {
+        return mRepository.getIngedientsWithRecipeId(id);
+    }
 
+    public LiveData<Recipe> getRecipeWithIngredients(int id) {
+        return null;
     }
 
 }

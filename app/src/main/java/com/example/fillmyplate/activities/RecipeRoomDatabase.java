@@ -14,7 +14,7 @@ import com.example.fillmyplate.db.RecipeDao;
 import com.example.fillmyplate.entitys.Ingredient;
 import com.example.fillmyplate.entitys.Recipe;
 
-@Database(entities = {Recipe.class, Ingredient.class}, version = 5, exportSchema = false)
+@Database(entities = {Recipe.class, Ingredient.class}, version = 6, exportSchema = false)
 public abstract class RecipeRoomDatabase extends RoomDatabase {
 
     public abstract RecipeDao recipeDao();
